@@ -5,9 +5,15 @@ import dev.umang.productservice09april.models.Product;
 import dev.umang.productservice09april.repositories.CategoryRepository;
 import dev.umang.productservice09april.repositories.ProductRepository;
 import dev.umang.productservice09april.repositories.projections.ProductProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service("selfproductservice")
 public class SelfProductService implements ProductService{
@@ -63,4 +69,52 @@ public class SelfProductService implements ProductService{
         //prd.get(0).getTitle();
         return productRepository.findAllByCategory_Title(category_name);
     }
+
+    private static String generateRandomTitle() {
+        String[] titles = {"Product A", "Product B", "Product C", "Product D", "Product E"}; // Add more titles as needed
+        Random random = new Random();
+        return titles[random.nextInt(titles.length)];
+    }
+
+    private static double generateRandomPrice() {
+        // Generate a random price between 10 and 100
+        return 10 + (Math.random() * 90);
+    }
+
+    @Override
+    public boolean generateProducts() {
+        List<Product> prod = new ArrayList<>();
+        for(int i = 1 ; i <= 20 ; i++){
+            Product p = new Product(generateRandomTitle(), generateRandomPrice());
+            prod.add(p);
+            //productRepository.save(p);
+        }
+
+        productRepository.saveAll(prod);
+        return false;
+    }
+
+    @Override
+    public Page<Product> getPaginatedProducts(Integer pageNo, Integer pageSize, String sort) {
+        Pageable pageable = null;
+        if(sort != null){
+           pageable = PageRequest.of(pageNo, pageSize, Sort.Direction.ASC, sort );
+        }else{
+            pageable = PageRequest.of(pageNo, pageSize);
+        }
+        return productRepository.findAll(pageable);
+    }
 }
+
+/*
+100 products
+page size = 10
+how many pages - 10
+1st page - 1 to 10
+2nd page - 11 to 20
+nth page - ??
+
+20 products
+page size = 4
+how many pages = 5
+ */

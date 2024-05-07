@@ -3,6 +3,7 @@ package dev.umang.productservice09april.services;
 import dev.umang.productservice09april.dtos.FakeStoreProductdto;
 import dev.umang.productservice09april.models.Category;
 import dev.umang.productservice09april.models.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -48,6 +49,16 @@ public class FakeStoreProductService implements ProductService{
                 FakeStoreProductdto.class);
 
         return fakeStoreProductdto1.toProduct();
+    }
+
+    @Override
+    public boolean generateProducts() {
+        return false;
+    }
+
+    @Override
+    public Page<Product> getPaginatedProducts(Integer pageNo, Integer pageSize, String sort) {
+        return null;
     }
 }
 

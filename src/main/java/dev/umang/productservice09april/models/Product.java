@@ -25,7 +25,12 @@ public class Product extends BaseModel{
     private Category category;
     //The above is going to add
     //a foreign key
+    public Product(String title, double price){
+        this.title = title;
+        this.price = price;
+    }
 }
+
 
 /*
 Product with Category

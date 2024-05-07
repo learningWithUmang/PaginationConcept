@@ -5,6 +5,7 @@ import dev.umang.productservice09april.models.Product;
 import dev.umang.productservice09april.services.FakeStoreProductService;
 import dev.umang.productservice09april.services.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,9 +62,24 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/paginationProducts/{pageNo}/{pageSize}")
+    public Page<Product> getProductsByPage(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize") int pageSize) {
+        return productService.getPaginatedProducts(pageNo, pageSize, null);
+    }
+
+    @GetMapping("/paginationProductsByPrice/{pageNo}/{pageSize}")
+    public Page<Product> getProductsByPrice(@PathVariable("pageNo") int pageNo, @PathVariable("pageSize") int pageSize) {
+        return productService.getPaginatedProducts(pageNo, pageSize, "price");
+    }
+
 
     public void updateProduct(){
 
+    }
+
+    @GetMapping("/generate")
+    public boolean generateProducts(){
+        return productService.generateProducts();
     }
 }
 
@@ -71,4 +87,14 @@ public class ProductController {
 
 /*
 Every api call at the end of the day is a method call inside a controller
+ */
+/*
+page no also starts from 0
+20 products, 7 is page size
+1 to 7 - 0th page
+8 to 14 - 1st page
+15 to 20 - 2nd page
+nothing - 3rd page
+nohting
+
  */
