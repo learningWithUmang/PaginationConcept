@@ -1,11 +1,17 @@
 package dev.umang.productservice09april.controllers;
 
+import dev.umang.productservice09april.commons.AuthenticationCommons;
 import dev.umang.productservice09april.dtos.RequestBodyProductDto;
+import dev.umang.productservice09april.dtos.Role;
+import dev.umang.productservice09april.dtos.UserDTO;
 import dev.umang.productservice09april.models.Product;
 import dev.umang.productservice09april.services.FakeStoreProductService;
 import dev.umang.productservice09april.services.ProductService;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +33,11 @@ public class ProductController {
      }
      */
     ProductService productService;
-    public ProductController(@Qualifier("selfproductservice") ProductService productService){
+    AuthenticationCommons authenticationCommons;
+    public ProductController(@Qualifier("selfproductservice") ProductService productService,
+                             AuthenticationCommons authenticationCommons){
         this.productService = productService;
+        this.authenticationCommons = authenticationCommons;
     }
     /*
     Qualifier is used to identify the depedency to be injected here
@@ -57,9 +66,36 @@ public class ProductController {
         return productService.getSingleProduct(id);
     }
 
-    @GetMapping("/products")
-    public List<Product> getAllProducts(){
-        return productService.getAllProducts();
+    @GetMapping("/products/{token}")
+    public ResponseEntity<List<Product>> getAllProducts(@PathVariable("token") @NonNull String token){
+        //validate the token first
+        UserDTO userDTO = authenticationCommons.validateToken(token);
+
+        if(userDTO == null){
+            //the token is valid, it's a forbidden request
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        boolean isAdmin = false;
+
+        for(Role role : userDTO.getRoles()){
+            if(role.getName().equals("Admin")){
+                isAdmin = true;
+            }
+        }
+
+        if(!isAdmin){
+            //authg failed, not allowed
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        //only admins are allowed to go to this /products/
+        //handle authg part here?
+
+
+
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/paginationProducts/{pageNo}/{pageSize}")
